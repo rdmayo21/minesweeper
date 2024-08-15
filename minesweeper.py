@@ -14,6 +14,7 @@ class Minesweeper:
         self.board = None
         self.visible = None
         self.flagged = None
+        self.game_over = False
         self.create_board()
 
     def create_board(self):
@@ -60,6 +61,7 @@ class Minesweeper:
         :return: True if the game should continue, False if a mine was revealed
         """
         if self.board[y][x] == -1:
+            self.game_over = True
             return False
         
         self.visible[y][x] = True
@@ -91,53 +93,19 @@ class Minesweeper:
                     return False
         return True
 
-    def print_board(self):
+    def get_cell_state(self, x, y):
         """
-        Print the current state of the game board.
+        Get the state of a cell for GUI display.
+        :param x: X-coordinate of the cell
+        :param y: Y-coordinate of the cell
+        :return: A tuple (is_visible, is_flagged, cell_value)
+        """
+        return (self.visible[y][x], self.flagged[y][x], self.board[y][x])
+
+    def reveal_all(self):
+        """
+        Reveal all cells on the board.
         """
         for y in range(self.height):
             for x in range(self.width):
-                if self.flagged[y][x]:
-                    print('F', end=' ')
-                elif not self.visible[y][x]:
-                    print('.', end=' ')
-                elif self.board[y][x] == -1:
-                    print('*', end=' ')
-                elif self.board[y][x] == 0:
-                    print(' ', end=' ')
-                else:
-                    print(self.board[y][x], end=' ')
-            print()
-
-def play_game():
-    """
-    Main function to play the Minesweeper game.
-    """
-    width, height, num_mines = 10, 10, 15
-    game = Minesweeper(width, height, num_mines)
-    
-    while True:
-        game.print_board()
-        action = input("Enter action (r/f) and coordinates (x y): ").split()
-        if len(action) != 3:
-            print("Invalid input. Please try again.")
-            continue
-        
-        act, x, y = action[0].lower(), int(action[1]), int(action[2])
-        
-        if act == 'r':
-            if not game.reveal_cell(x, y):
-                print("Game Over! You hit a mine.")
-                game.print_board()
-                break
-            if game.check_win():
-                print("Congratulations! You won!")
-                game.print_board()
-                break
-        elif act == 'f':
-            game.flag_cell(x, y)
-        else:
-            print("Invalid action. Use 'r' to reveal or 'f' to flag/unflag.")
-
-if __name__ == "__main__":
-    play_game()
+                self.visible[y][x] = True
